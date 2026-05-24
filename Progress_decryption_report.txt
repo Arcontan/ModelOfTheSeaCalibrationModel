@@ -1,0 +1,68 @@
+Progress.dat decryption & edit notes
+
+Decryption method (from game CryptoUtility behavior)
+- File layout: [20-byte SHA1 hash of ciphertext] + [AES-256-CBC ciphertext].
+- SHA1 check: first 20 bytes must equal SHA1(ciphertext).
+- Key derivation: PBKDF2-HMAC-SHA1, 1000 iterations.
+  - Password: 56SA%FG42Dv5#4aG67f2
+  - Salt (13 bytes, decimal): 82, 166, 66, 87, 146, 51, 179, 108, 242, 110, 98, 237, 124
+  - Derive 48 bytes (Rfc2898DeriveBytes stream): first 32 = AES key, next 16 = IV.
+- AES mode: AES-256-CBC with PKCS7 padding.
+- Plaintext output: UTF-8 XML (Progress.xml) containing <Boolean>, <Int32>, <Single>, <String> entries.
+- Re-encrypt by reversing the above and recomputing the 20-byte SHA1 prefix.
+
+Where/how to change values (based on decrypted Progress.xml in this repo)
+Currency
+- Snout coins: Int32 key "SnoutCoins" (current value: 2100000000).
+- Scrap: Int32 key "Scrap" (current value: 2099955933).
+  - Related: Int32 key "Machine_scrap_amount" (current value: 0).
+- Snout gems: no "SnoutGems"/"SnoutGemsCount" key exists in this Progress.xml.
+  - If gems are supported in another build, look for a similar Int32 key (not present here).
+
+Unlocking levels / sandboxes
+- Full version unlock: Boolean key "FullVersionUnlocked" (True).
+- Race levels: Boolean keys "race_level_unlocked_R-*" (True).
+- Sandboxes: Boolean keys "sandbox_unlocked_S-*" (True).
+- Sandbox UI unlocks: Int32 keys
+  - "button_unlock_EpisodeButtonSandbox" (current 2)
+  - "button_unlock_SandboxLevelButton_S-*" (current 1)
+- Level auto-build availability: Boolean keys "Level_*_autobuild_available" and
+  "episode_6_level_*_autobuild_available" (True).
+- Ad-unlock flags: Int32 keys like "Level_*_ad_unlocked", "S-*_ad_unlocked",
+  "R-*_ad_unlocked", "scenario_*_ad_unlocked" (set to 1).
+
+3-starring all levels
+- Main episodes: Int32 keys "Level_##_stars" (set to 3).
+- Episode 6: Int32 keys "episode_6_level_*_stars" (set to 3).
+- Other course/star counters: Int32 keys "course_02_stars", "course_04_stars" (set to 3).
+- Selection badges: Boolean keys
+  - "Episode1LevelSelection_3starred", "Episode2LevelSelection_3starred",
+    "Episode3LevelSelection_3starred", "Episode5LevelSelection_3starred",
+    "Episode6LevelSelection_3starred", "RaceLevelSelection_3starred" (True).
+
+Starboxes in sandboxes
+- Episode 6 sandboxes:
+  - Int32 keys "Episode_6_<Theme> Sandbox_star_StarBox##" (current 1 = collected).
+  - Int32 keys "Episode_6_<Theme> Sandbox_star_FloatingStarBox##" (current 2).
+  - Int32 keys "Episode_6_<Theme> Sandbox_stars" (current 20).
+- Classic sandboxes:
+  - Int32 keys "Level_Sandbox_##_star_StarBox##" (current 1 = collected).
+  - Int32 keys "Level_Sandbox_##_stars" (set to max).
+
+Consumables
+- Int32 keys:
+  - "NightVisions_Available" (current 2100000000)
+  - "SuperGlue_Available" (current 2100000000)
+  - "SuperMagnet_Available" (current 2100000000)
+  - "TurboCharge_Available" (current 2100000000)
+
+Items / parts / skins
+- Part inventory counts: Int32 keys "part_<PartName>" (current 520 for each part).
+- Part unlock counters: Int32 keys "part_unlocked_<PartName>" (current 0).
+- Per-variant unlock flags: Boolean keys "Part_<PartName>_<Variant>_SET" (True)
+  and "Part_<PartName>_<Variant>_SET_isUsed" (True).
+- Pig skins are represented by the same part-set flags:
+  - "Part_Pig_*_SET", "Part_KingPig_*_SET", "Part_GoldenPig_*_SET" (True).
+
+Player level
+- Int32 key "player_level" (current value: 20).
